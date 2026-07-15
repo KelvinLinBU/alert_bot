@@ -2,7 +2,7 @@ name: Pokemon Restock Monitor
 
 on:
   schedule:
-    - cron: "2/5 * * * *"
+    - cron: "*/5 * * * *"
 
   workflow_dispatch:
 
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   check-bluesky:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
 
     steps:
       - name: Download repository
@@ -25,10 +25,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.12"
 
-      - name: Install requests
-        run: python -m pip install requests
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests websockets
 
-      - name: Check Bluesky
+      - name: Verify packages
+        run: |
+          python -c "import requests; print('requests installed')"
+          python -c "import websockets; print('websockets installed:', websockets.__version__)"
+
+      - name: Run restock bot
         run: python pokemon_restock_bot.py
